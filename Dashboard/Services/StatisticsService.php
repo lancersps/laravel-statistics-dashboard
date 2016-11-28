@@ -29,7 +29,9 @@ class StatisticsService {
                 setcookie("Vstatistics", 1, time() +  (86400 * 30));  // 86400 = 1 day
 
                 try {
-                    self::createEntity($location);
+                    if ($location) {
+                        self::createEntity($location);
+                    }
                 }catch (Exception $ex) {}
             } catch (Exception $ex) {
 //                echo 'Caught exception: ',  $ex->getMessage(), "\n";
@@ -40,9 +42,29 @@ class StatisticsService {
     }
     
     public static function locationQuery($ip){
-       $location = json_decode(file_get_contents('http://freegeoip.net/json/'.$ip), true);
+//        $start = round(microtime(true) * 1000);
+
+        $url = 'http://freegeoip.net/json/'.$ip;
+        $ch = curl_init();
+        $timeout = 1; // set timeout to 1 second
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+
+        $result = curl_exec($ch);
+        curl_close($ch);
+        
+        $result = json_decode($result, true);
+
+//        $end = round(microtime(true) * 1000);
+//        var_dump($result);
+//        var_dump($end - $start . ' ms');
+//        die;
+
+//       $result = json_decode(file_get_contents('http://freegeoip.net/json/'.$ip), true);
        
-       return $location;
+       return $result;
     }
     
     public static function createEntity($location) {
@@ -90,6 +112,24 @@ class StatisticsService {
         $entitiesCount = Statistic::whereBetween(\DB::raw('MONTH(created_at)'), [$from, $currentMonth])->groupBy('ip')->get()->count();
         
         return $entitiesCount;
+    }
+    
+    public static function getAllCount(){
+        $currentMonth = date('n');
+        $from = date('n', strtotime('-5 month'));
+        $entitiesCount = Statistic::whereBetween(\DB::raw('MONTH(created_at)'), [$from, $currentMonth])->get()->count();
+        
+        return $entitiesCount;
+    }
+    
+    /**
+     * Remove all old entities in DB statistics table where created_at field is before 6 months
+     */
+    public static function removeOldEntities(){
+        $from = date('Y-m-d H:i:s', strtotime('-5 month'));
+        $deleteStatus = Statistic::whereDate(\DB::raw('created_at'), '<', $from)->delete();
+
+        return $deleteStatus;
     }
     
     

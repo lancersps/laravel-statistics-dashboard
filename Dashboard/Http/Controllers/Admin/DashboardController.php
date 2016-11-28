@@ -8,7 +8,6 @@ use Modules\Core\Http\Controllers\Admin\AdminBaseController;
 use Modules\User\Contracts\Authentication;
 use Nwidart\Modules\Repository;
 use Modules\Dashboard\Services\StatisticsService;
-use Modules\Atraction\Entities\Atraction;
 
 class DashboardController extends AdminBaseController {
 
@@ -23,7 +22,6 @@ class DashboardController extends AdminBaseController {
      */
     public function __construct(Repository $modules, Authentication $auth) {
         parent::__construct();
-        $this->bootWidgets($modules);
         $this->auth = $auth;
     }
 
@@ -31,11 +29,11 @@ class DashboardController extends AdminBaseController {
         /**
          * Statistics data
          */
-        $statistics['perMonth'] = $statisticsPerMonth = StatisticsService::getStatisticsPerMonth();
-        $statistics['lastMonthCount'] = $statisticsLastMonthCount = StatisticsService::getLastMonthVisitsCount();
-        $statistics['lastDayCount'] = $statisticsLastDayCount = StatisticsService::getLastDayVisitsCount();
-        $statistics['uniqueIpAddresses'] = $statisticsUniqueIpAddresses = StatisticsService::getUniqueIpAddresses();
-        $statistics['atractionCount'] = $statisticsAtractionCount = Atraction::all()->count();
+        $statistics['perMonth'] = StatisticsService::getStatisticsPerMonth();
+        $statistics['lastMonthCount'] = StatisticsService::getLastMonthVisitsCount();
+        $statistics['lastDayCount'] = StatisticsService::getLastDayVisitsCount();
+        $statistics['all'] = StatisticsService::getAllCount();
+        $statistics['uniqueIpAddresses'] = StatisticsService::getUniqueIpAddresses();
         
         return view('dashboard::dashboard', compact('customWidgets', 'statistics'));
     }

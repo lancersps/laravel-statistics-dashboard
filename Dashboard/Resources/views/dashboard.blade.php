@@ -23,7 +23,7 @@
         <div class="col-lg-3 col-xs-6">
             <div class="small-box bg-yellow">
                 <div class="inner">
-                    <h3> {{ $statistics['atractionCount'] }} <span class="no-bold" style="font-size: 14px;"> atractions</span></h3>
+                    <h3> {{ $statistics['all'] }} <span class="no-bold" style="font-size: 14px;"> visits</span></h3>
                     <p> In database</p>
                 </div>
                 <a href="javascript:void(0)" class="small-box-footer" style="opacity: 0;">News <i class="fa fa-arrow-circle-right"></i></a>
